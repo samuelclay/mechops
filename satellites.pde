@@ -29,7 +29,7 @@ void setup() {
   c1 = new Dish(x1, y1);
   c2 = new Dish(x2, y2);
   c3 = new Dish(x3, y3);
-  c3.rotate(PI/6);
+  c3.set_rotatation(PI/6);
   
   state = states.STATE_TRANSMIT_A2B;
   transmit_start = millis();
@@ -64,7 +64,7 @@ void draw() {
 class Dish {
   int x, y, diameter = 100;
   float transp = 1;
-  float rotation;
+  float rot;
   color cl1 = color(0,0,255,255);
   boolean ran = false;
   float search_angle = 0;
@@ -75,23 +75,22 @@ class Dish {
     y = y_;
   }
   
-  void rotate(float rotation) {
-    this.rotation = rotation;
+  void set_rotatation(float rotation) {
+    this.rot = rotation;
   }
   
   void transmit() {
     // int[] current_stanza = stanzas[this.stanza_iter];
     if (millis() - transmit_start > TRANSMIT_MS) return;
+    
     float progress = map(millis() - transmit_start, 0, TRANSMIT_MS, 0, 200);
     pushMatrix();
     translate(this.x, this.y);
-    rotate(this.rotation);
-    rect(0, 0, 100, 100);
+    rotate(this.rot);
 
-    println(" ---> Progress: ", progress, floor(progress));
     for (int i=0; i < floor(progress); i++) {
       rotate(0.1);
-      ellipse(i, 0, 10, 10);
+      ellipse(i/2, 0, 10, 10);
     }
     popMatrix();
   }
@@ -102,13 +101,11 @@ class Dish {
     float progress = map(millis() - transmit_start - 1000, 0, TRANSMIT_MS, 0, 200);
     pushMatrix();
     translate(this.x, this.y);
-    rotate(this.rotation);
-    rect(0, 0, 100, 100);
+    rotate(this.rot);
 
-    println(" ---> Progress: ", progress, floor(progress));
     for (int i=0; i < floor(progress); i++) {
       rotate(0.1);
-      ellipse(i, 0, 10, 10);
+      ellipse(i/3, 0, 10, 10);
     }
     popMatrix();
   }
@@ -118,13 +115,12 @@ class Dish {
     
     pushMatrix();
     translate(this.x, this.y);
-    println(" ---> Rotation: ", this.rotation);
-    rotate(this.rotation);
+    rotate(this.rot);
     noStroke();
     fill(255, 255, 255, alpha);
     ellipse(0, 0, this.diameter, this.diameter*.5);
     popMatrix();
-    
+
     this.transp += dtrans;
     if (this.transp < 0.5){
       this.transp = 1;
