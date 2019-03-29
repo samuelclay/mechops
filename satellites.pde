@@ -43,11 +43,11 @@ void draw() {
   if (state == states.STATE_TRANSMIT_A2B) {
     c1.transmit();
     c2.receive();
-    c3.transmit();
+    c3.receive();
   } else if (state == states.STATE_TRANSMIT_B2A) {
     c1.receive();
     c2.transmit();
-    c3.transmit();
+    c3.receive();
   }
   
   if (millis() > transmit_start + TRANSMIT_MS + 1000) {
@@ -105,6 +105,7 @@ class Dish {
 
     for (int i=0; i < floor(progress); i++) {
       rotate(0.1);
+      if (this.rot != 0 && (this.search_angle > 6*PI/4 || this.search_angle < 4*PI/4)) continue;
       ellipse(i/3, 0, 10, 10);
     }
     popMatrix();
@@ -135,6 +136,8 @@ class Dish {
     fill(255, 230, 210, 76);
     arc(this.x, this.y, 200, 200, this.search_angle, this.search_angle+PI/6);
     popMatrix();
+    
+    if (this.search_angle >= 2*PI) this.search_angle = 0;
   }
   
   void reset() {
