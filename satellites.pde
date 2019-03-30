@@ -153,7 +153,7 @@ class Dish {
       if (s==0) {
         // println(" ---> Amplitudes: ", current_stanza, stanza_progress, left_amplitude, right_amplitude, interp_amplitude);
       }
-      ellipse(0, 0, amplitude, amplitude);
+      ellipse(0, 0, amplitude*.9, amplitude);
     }
     popMatrix();
   }
