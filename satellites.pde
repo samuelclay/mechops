@@ -1,6 +1,5 @@
 int x1, x2, x3, y1, y2, y3;
 Dish c1, c2, c3;
-int counter;
 int[][] stanzas = {
   {10, 10, 10, 100, 100, 100, 50, 50, 50},
   {100, 100, 10, 10, 100, 100, 10, 10}
@@ -23,7 +22,6 @@ void setup() {
   y1 = height/4;
   y2 = height/4;
   y3 = height - y1;
-  counter = 0;
   stanza_iter = 0;
 
   c1 = new Dish(x1, y1);
@@ -109,25 +107,6 @@ class Dish {
       ellipse(i/3, 0, 10, 10);
     }
     popMatrix();
-  }
-  
-  void fade(float dtrans){
-    float alpha = map(this.transp, 0, 1, 0, 255);
-    
-    pushMatrix();
-    translate(this.x, this.y);
-    rotate(this.rot);
-    noStroke();
-    fill(255, 255, 255, alpha);
-    ellipse(0, 0, this.diameter, this.diameter*.5);
-    popMatrix();
-
-    this.transp += dtrans;
-    if (this.transp < 0.5){
-      this.transp = 1;
-      counter++;
-      this.ran = true;
-    }
   }
   
   void search() {
