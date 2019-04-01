@@ -23,14 +23,14 @@ public enum states {STATE_BOOTSTRAP_C,
                     STATE_TRANSMIT_B2A}
 states state;
 int stanza_iter;
-int search_c_start;
-int bootstrap_a_start;
-int transmit_a_start;
-int bootstrap_b_start;
-int transmit_ab_start;
+int search_c_start = 0;
+int bootstrap_a_start = 0;
+int transmit_a_start = 0;
+int bootstrap_b_start = 0;
+int transmit_ab_start = 0;
 final int BOOTSTRAP_C_MS = 1 * 1000;
 final int SEARCH_C_MS = 2 * 1000;
-final int BOOTSTRAP_A_MS = 3 * 1000;
+final int BOOTSTRAP_A_MS = 6 * 1000;
 final int TRANSMIT_A_MS = 3 * 1000;
 final int BOOTSTRAP_B_MS = 3 * 1000;
 final int TRANSMIT_AB_MS = 5 * 1000;
@@ -54,9 +54,10 @@ void setup() {
   c2 = new Dish(x2, y2);
   c3 = new Dish(x3, y3);
   c3.set_rotatation(PI/6);
+  c1.set_color(color(26,137,175,100));
   
   state = states.STATE_BOOTSTRAP_C;
-  println(" ---> State: ", state);
+  println(" ---> State:", state);
   transmit_ab_start = millis();
 }
 
@@ -102,40 +103,39 @@ void transitionState() {
       millis() > BOOTSTRAP_C_MS) {
     search_c_start = millis();
     state = states.STATE_SEARCH_C;
-    println(" ---> State: ", state);
+    println(" ---> State:", state);
   } else if (state == states.STATE_SEARCH_C && 
              millis() > search_c_start + SEARCH_C_MS) {
-
     bootstrap_a_start = millis();
     state = states.STATE_BOOTSTRAP_A;
-    println(" ---> State: ", state);
+    println(" ---> State:", state);
   } else if (state == states.STATE_BOOTSTRAP_A && 
-             millis() > bootstrap_a_start + SEARCH_C_MS) {
+             millis() > bootstrap_a_start + BOOTSTRAP_A_MS) {
     transmit_a_start = millis();
     state = states.STATE_TRANSMIT_A;
-    println(" ---> State: ", state);
+    println(" ---> State:", state);
   } else if (state == states.STATE_TRANSMIT_A && 
              millis() > transmit_a_start + TRANSMIT_A_MS) {
     bootstrap_b_start = millis();
     state = states.STATE_BOOTSTRAP_B;
-    println(" ---> State: ", state);
+    println(" ---> State:", state);
   } else if (state == states.STATE_BOOTSTRAP_B && 
              millis() > bootstrap_b_start + BOOTSTRAP_B_MS) {
     transmit_ab_start = millis();
     state = states.STATE_TRANSMIT_A2B;
-    println(" ---> State: ", state);
+    println(" ---> State:", state);
   } else if (millis() > transmit_ab_start + TRANSMIT_AB_MS + 1000) {
     transmit_ab_start = millis();
     if (state == states.STATE_TRANSMIT_A2B) {
       c1.set_color(color(26,137,175,100));
       c2.set_color(color(26,137,175,100));
       state = states.STATE_TRANSMIT_B2A;
-    println(" ---> State: ", state);
+    println(" ---> State:", state);
     } else if (state == states.STATE_TRANSMIT_B2A) {
       c1.set_color(color(195,83,31,100));
       c2.set_color(color(195,83,31,100));
       state = states.STATE_TRANSMIT_A2B;
-    println(" ---> State: ", state);
+    println(" ---> State:", state);
     }
   }
 }
@@ -221,7 +221,20 @@ class Dish {
   }
   
   void bootstrap_a() {
+    float progress = min(1, (millis() - bootstrap_a_start) / float(BOOTSTRAP_A_MS));
+
+    pushMatrix();
+    translate(this.x, this.y);
+    rotate(this.rot);
+
+    scale(0.9, 1);
+    for (int i=0; i < floor(350*progress); i++) {
+      rotate(0.1);
+      fill(this.message_color);
+      ellipse(i/6, 0, 10, 10);
+    }
     
+    popMatrix();
   }
   
   void bootstrap_b() {
