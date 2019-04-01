@@ -19,6 +19,7 @@ states state;
 int stanza_iter;
 int transmit_start;
 final int TRANSMIT_MS = 5 * 1000;
+color cl1;
 
 // int xspacing = 2;   // How far apart should each horizontal location be spaced
 // int w;              // Width of entire wave
@@ -67,10 +68,12 @@ void draw() {
   
   // State machine
   if (state == states.STATE_TRANSMIT_A2B) {
+    cl1 = color(26,137,175,100);
     c1.transmit();
     c2.receive();
     c3.receive();
   } else if (state == states.STATE_TRANSMIT_B2A) {
+    cl1 = color(195,83,31,100);
     c1.receive();
     c2.transmit();
     c3.receive();
@@ -116,11 +119,11 @@ class Dish {
   int x, y, diameter = 100;
   float transp = 1;
   float rot;
-  color cl1 = color(0,0,255,255);
+  //color cl1;
   boolean ran = false;
   float search_angle = 0;
   int stanza_iter = 0;
-  
+ 
   Dish(int x_, int y_) {
     x = x_;
     y = y_;
@@ -153,6 +156,7 @@ class Dish {
       if (s==0) {
         // println(" ---> Amplitudes: ", current_stanza, stanza_progress, left_amplitude, right_amplitude, interp_amplitude);
       }
+      fill(cl1);
       ellipse(0, 0, amplitude*.9, amplitude);
     }
     popMatrix();
@@ -169,6 +173,7 @@ class Dish {
     for (int i=0; i < floor(progress); i++) {
       rotate(0.1);
       if (this.rot != 0 && (this.search_angle > 6*PI/4 || this.search_angle < 4*PI/4)) continue;
+      fill(cl1);
       ellipse(i/3, 0, 10, 10);
     }
     popMatrix();
@@ -189,4 +194,3 @@ class Dish {
   }
   
 }
-
