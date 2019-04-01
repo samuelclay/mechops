@@ -14,7 +14,7 @@ int[][] stanzas = {
   {100, 100, 10, 10, 100, 100, 10, 10, 10}, // 100 hz
   {100, 100, 10, 10, 100, 100, 10, 10, 10}  // 50 hz
 };
-public enum states {STATE_TRANSMIT_A2B, STATE_TRANSMIT_B2A}
+public enum states {STATE_SEARCH, STATE_TRANSMIT_A2B, STATE_TRANSMIT_B2A}
 states state;
 int stanza_iter;
 int transmit_start;
