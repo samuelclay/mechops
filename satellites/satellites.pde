@@ -18,6 +18,7 @@ public enum states {STATE_BOOTSTRAP_C, STATE_SEARCH_C, STATE_TRANSMIT_A2B, STATE
 states state;
 int stanza_iter;
 int transmit_start;
+int search_c_start;
 final int TRANSMIT_MS = 5 * 1000;
 final int BOOTSTRAP_C_MS = 3 * 1000;
 final int SEARCH_C_MS = 3 * 1000;
@@ -75,8 +76,11 @@ void runState() {
 void transitionState() {
   // Switch states
   if (state == states.STATE_BOOTSTRAP_C && millis() > BOOTSTRAP_C_MS) {
-    state = states.STATE_TRANSMIT_A2B;
+    search_c_start = millis();
+    state = states.STATE_SEARCH_C;
+  } else if (state == states.STATE_SEARCH_C && millis() > SEARCH_C_MS) {
     transmit_start = millis();
+    state = states.STATE_TRANSMIT_A2B;
   } else if (millis() > transmit_start + TRANSMIT_MS + 1000) {
     transmit_start = millis();
     if (state == states.STATE_TRANSMIT_A2B) {
@@ -173,7 +177,11 @@ class Dish {
   
   void search() {
     pushMatrix();
-    this.search_angle += PI/72;
+    float search_bootstrap_progress = 1;
+    if (state == states.STATE_SEARCH_C) {
+      search_bootstrap_progress = min(1, (millis() - search_c_start) / float(SEARCH_C_MS));
+    }
+    this.search_angle += search_bootstrap_progress * PI/72;
     fill(255, 230, 210, 76);
     arc(this.x, this.y, 200, 200, this.search_angle, this.search_angle+PI/6);
     popMatrix();
