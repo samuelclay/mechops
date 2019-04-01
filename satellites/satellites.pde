@@ -14,14 +14,26 @@ int[][] stanzas = {
   {100, 100, 10, 10, 100, 100, 10, 10, 10}, // 100 hz
   {100, 100, 10, 10, 100, 100, 10, 10, 10}  // 50 hz
 };
-public enum states {STATE_BOOTSTRAP_C, STATE_SEARCH_C, STATE_TRANSMIT_A2B, STATE_TRANSMIT_B2A}
+public enum states {STATE_BOOTSTRAP_C, 
+                    STATE_SEARCH_C, 
+                    STATE_BOOTSTRAP_A,
+                    STATE_TRANSMIT_A,
+                    STATE_BOOTSTRAP_B,
+                    STATE_TRANSMIT_A2B, 
+                    STATE_TRANSMIT_B2A}
 states state;
 int stanza_iter;
-int transmit_start;
 int search_c_start;
-final int BOOTSTRAP_C_MS = 3 * 1000;
-final int SEARCH_C_MS = 10 * 1000;
-final int TRANSMIT_MS = 5 * 1000;
+int bootstrap_a_start;
+int transmit_a_start;
+int bootstrap_b_start;
+int transmit_ab_start;
+final int BOOTSTRAP_C_MS = 1 * 1000;
+final int SEARCH_C_MS = 2 * 1000;
+final int BOOTSTRAP_A_MS = 3 * 1000;
+final int TRANSMIT_A_MS = 3 * 1000;
+final int BOOTSTRAP_B_MS = 3 * 1000;
+final int TRANSMIT_AB_MS = 5 * 1000;
 
 
 void setup() {
@@ -44,7 +56,8 @@ void setup() {
   c3.set_rotatation(PI/6);
   
   state = states.STATE_BOOTSTRAP_C;
-  transmit_start = millis();
+  println(" ---> State: ", state);
+  transmit_ab_start = millis();
 }
 
 void draw() {
@@ -59,6 +72,16 @@ void runState() {
   if (state == states.STATE_BOOTSTRAP_C) {
     c3.bootstrap_c();
   } else if (state == states.STATE_SEARCH_C) {
+    c3.search();
+  } else if (state == states.STATE_BOOTSTRAP_A) {
+    c1.bootstrap_a();
+    c3.search();
+  } else if (state == states.STATE_TRANSMIT_A) {
+    c1.transmit();
+    c3.search();
+  } else if (state == states.STATE_BOOTSTRAP_B) {
+    c1.transmit();
+    c2.bootstrap_b();
     c3.search();
   } else if (state == states.STATE_TRANSMIT_A2B) {
     c1.transmit();
@@ -75,22 +98,44 @@ void runState() {
 
 void transitionState() {
   // Switch states
-  if (state == states.STATE_BOOTSTRAP_C && millis() > BOOTSTRAP_C_MS) {
+  if (state == states.STATE_BOOTSTRAP_C && 
+      millis() > BOOTSTRAP_C_MS) {
     search_c_start = millis();
     state = states.STATE_SEARCH_C;
-  } else if (state == states.STATE_SEARCH_C && millis() > SEARCH_C_MS) {
-    transmit_start = millis();
+    println(" ---> State: ", state);
+  } else if (state == states.STATE_SEARCH_C && 
+             millis() > search_c_start + SEARCH_C_MS) {
+
+    bootstrap_a_start = millis();
+    state = states.STATE_BOOTSTRAP_A;
+    println(" ---> State: ", state);
+  } else if (state == states.STATE_BOOTSTRAP_A && 
+             millis() > bootstrap_a_start + SEARCH_C_MS) {
+    transmit_a_start = millis();
+    state = states.STATE_TRANSMIT_A;
+    println(" ---> State: ", state);
+  } else if (state == states.STATE_TRANSMIT_A && 
+             millis() > transmit_a_start + TRANSMIT_A_MS) {
+    bootstrap_b_start = millis();
+    state = states.STATE_BOOTSTRAP_B;
+    println(" ---> State: ", state);
+  } else if (state == states.STATE_BOOTSTRAP_B && 
+             millis() > bootstrap_b_start + BOOTSTRAP_B_MS) {
+    transmit_ab_start = millis();
     state = states.STATE_TRANSMIT_A2B;
-  } else if (millis() > transmit_start + TRANSMIT_MS + 1000) {
-    transmit_start = millis();
+    println(" ---> State: ", state);
+  } else if (millis() > transmit_ab_start + TRANSMIT_AB_MS + 1000) {
+    transmit_ab_start = millis();
     if (state == states.STATE_TRANSMIT_A2B) {
       c1.set_color(color(26,137,175,100));
       c2.set_color(color(26,137,175,100));
       state = states.STATE_TRANSMIT_B2A;
+    println(" ---> State: ", state);
     } else if (state == states.STATE_TRANSMIT_B2A) {
       c1.set_color(color(195,83,31,100));
       c2.set_color(color(195,83,31,100));
       state = states.STATE_TRANSMIT_A2B;
+    println(" ---> State: ", state);
     }
   }
 }
@@ -120,9 +165,9 @@ class Dish {
   
   void transmit() {
     // int[] current_stanza = stanzas[this.stanza_iter];
-    if (millis() - transmit_start > TRANSMIT_MS) return;
+    if (millis() - transmit_ab_start > TRANSMIT_AB_MS) return;
     
-    float progress = map(millis() - transmit_start, 0, TRANSMIT_MS, 0, 1);
+    float progress = map(millis() - transmit_ab_start, 0, TRANSMIT_AB_MS, 0, 1);
     pushMatrix();
     translate(this.x, this.y);
     rotate(this.rot);
@@ -149,8 +194,8 @@ class Dish {
   
   void receive() {
     // int[] current_stanza = stanzas[this.stanza_iter];
-    if (millis() - transmit_start < 1000) return;
-    float progress = map(millis() - transmit_start - 1000, 0, TRANSMIT_MS, 0, 200);
+    if (millis() - transmit_ab_start < 1000) return;
+    float progress = map(millis() - transmit_ab_start - 1000, 0, TRANSMIT_AB_MS, 0, 200);
     pushMatrix();
     translate(this.x, this.y);
     rotate(this.rot);
@@ -173,6 +218,14 @@ class Dish {
     arc(this.x, this.y, 200, 200, this.search_angle, this.search_angle+PI/6);
     
     popMatrix();
+  }
+  
+  void bootstrap_a() {
+    
+  }
+  
+  void bootstrap_b() {
+    
   }
   
   void search() {
