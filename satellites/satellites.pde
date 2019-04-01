@@ -19,9 +19,9 @@ states state;
 int stanza_iter;
 int transmit_start;
 int search_c_start;
-final int TRANSMIT_MS = 5 * 1000;
 final int BOOTSTRAP_C_MS = 3 * 1000;
-final int SEARCH_C_MS = 3 * 1000;
+final int SEARCH_C_MS = 10 * 1000;
+final int TRANSMIT_MS = 5 * 1000;
 
 
 void setup() {
