@@ -3,4 +3,7 @@ all:
 
 sounds:
 	processing-java --sketch=/Users/sclay/Dropbox/Documents/Harvard/Mechatronic\ Optics/satellites/sound --run
+
+wavy:
+	processing-java --sketch=/Users/sclay/Dropbox/Documents/Harvard/Mechatronic\ Optics/satellites/wavyDisc --run
 	
