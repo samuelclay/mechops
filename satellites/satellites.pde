@@ -47,9 +47,9 @@ int transmit_ab_start = 0;
 final int BOOTSTRAP_C_MS = 5 * 1000;
 final int SEARCH_C_MS = 5 * 1000;
 final int BOOTSTRAP_A_MS = 3 * 1000;
-final int TRANSMIT_A_MS = 2 * 1000;
+final int TRANSMIT_A_MS = 10 * 1000;
 final int BOOTSTRAP_B_MS = 3 * 1000;
-final int TRANSMIT_AB_MS = 3 * 1000;
+final int TRANSMIT_AB_MS = 10 * 1000;
 
 final int TRANSMIT_REST_MS = 2 * 1000;
 final int TRANSMIT_BOOTSTRAP_MS = 2 * 1000;
@@ -80,22 +80,19 @@ void setup() {
   c3.set_rotatation(PI/6);
   c1.set_color(color(26,137,175,100));
   
-  state = states.STATE_TRANSMIT_A2B;
+  state = states.STATE_TRANSMIT_A;
   transmit_state = transmit_states.STATE_TRANSMIT_REST;
-  //println(" ---> State:", state);
+  println(" ---> State:", state);
   transmit_ab_start = millis();
 }
 
 void draw() {
   background(0);
   lights();
-  translate(width / 2, height / 2);
-  rotateZ(map(mouseY, 0, height, 0, -PI));
-  rotateX(map(mouseX, 0, width, 0, -PI));
   noStroke();
-  //fill(255, 255, 255);
-  //translate(0, -40, 0);
-  
+  // rotateZ(map(mouseY, 0, height, 0, -PI));
+  // rotateX(map(mouseX, 0, width, 0, -PI));
+  // println("Z:", mouseY, " X:", mouseX);
   runState();
 
   transitionState();
@@ -202,9 +199,14 @@ class Dish {
     if (millis() - transmit_ab_start > TRANSMIT_AB_MS) return;
     
     float progress = map(millis() - transmit_ab_start, 0, TRANSMIT_AB_MS, 0, 1);
+    float alpha_progress = min(1, map(millis() - transmit_ab_start, 0, TRANSMIT_BOOTSTRAP_MS, 0, 1));
+    if (millis() - transmit_ab_start > TRANSMIT_AB_MS - TRANSMIT_BOOTSTRAP_MS) {
+      alpha_progress = 1 - max(0, map(millis() - transmit_ab_start, TRANSMIT_AB_MS-TRANSMIT_BOOTSTRAP_MS, TRANSMIT_AB_MS, 0, 1));
+    }
     pushMatrix();
     translate(this.x, this.y);
     rotate(this.rot);
+    // rotateX(PI/2);
     
     for (int s=0; s < stanzas.length; s++) {
       int[] stanza = stanzas[s];
@@ -220,11 +222,14 @@ class Dish {
       if (s==0) {
         // println(" ---> Amplitudes: ", current_stanza, stanza_progress, left_amplitude, right_amplitude, interp_amplitude);
       }
-      //fill(this.message_color);
-      //ellipse(0, 0, amplitude*.9, amplitude);
-      calcWave();
-      drawSatellite(100, 5, 5, 32, numRadii);
+      int a = (this.message_color >> 24) & 0xFF;
+      int r = (this.message_color >> 16) & 0xFF;
+      int g = (this.message_color >> 8) & 0xFF;
+      int b = this.message_color & 0xFF;
+      fill(r, g, b, alpha_progress*a);
+      ellipse(0, 0, amplitude*.9, amplitude);
     }
+
     popMatrix();
   }
   
@@ -329,54 +334,4 @@ class Dish {
     this.ran = false;
   }
   
-  void calcWave() {
-    // Increment theta (try different values for 'angular velocity' here
-    theta += 0.05;
-  
-    // For every x value, calculate a y value with sine function
-    float x = theta;
-    for (int i = 0; i < stanzas.length; i++) {
-      for (int j = 0; j < stanzas[i].length; j++) {
-      //yvalues[i] = sin(x)*amplitude;
-      yvalues[i] = stanzas[i][j];
-      x+=dx;
-      }
-    }
-    println(yvalues);
-  }
-
-  void drawSatellite(float topRadius, float bottomRadius, float tall, int sides, int strips) {
-    float angle = 0;
-    float angleIncrement = TWO_PI / sides;
-    float radiusIncrement = (topRadius - bottomRadius)/strips; 
-    float curRadius = topRadius;
-    float nextRadius = topRadius - radiusIncrement;
-    float stripHeight = tall/strips; 
-    
-    for (int j = 0; j < strips; j++){
-      beginShape(QUAD_STRIP);
-      angle = 0;
-      for (int i = 0; i < sides + 1; ++i) {
-        vertex(curRadius*cos(angle), (j*stripHeight)+yvalues[j], curRadius*sin(angle));
-        vertex(nextRadius*cos(angle), ((j+1)*stripHeight)+yvalues[j+1], nextRadius*sin(angle));
-        angle += angleIncrement;
-      }
-      endShape();
-      curRadius = nextRadius;
-      nextRadius -= radiusIncrement;
-    }
-    
-    // Draw the circular bottom cap
-    if (bottomRadius != 0) {
-      angle = 0;
-      beginShape(TRIANGLE_FAN);
-      // Center point
-      vertex(0, tall, 0);
-      for (int i = 0; i < sides + 1; i++) {
-        vertex(bottomRadius * cos(angle), ((strips)*stripHeight)+yvalues[strips], bottomRadius * sin(angle));
-        angle += angleIncrement;
-      }
-      endShape();
-    }
-  }
 }

@@ -4,19 +4,20 @@ import ddf.minim.*;
 Minim       minim;
 AudioPlayer timothy;
 FFT         fft;
-
+int bands = 512;
+float[] spectrum = new float[bands];
 
 void setup()
 {  
-        size(512, 512, P3D);
+        size(512, 512);
         
         minim = new Minim(this);
         
         timothy = minim.loadFile("Timothy1.mp3", 1024);        
-        timothy.play();
-             
+        //timothy.play();
+        //println(timothy.sampleRate());
         fft = new FFT( timothy.bufferSize(), timothy.sampleRate() );
-                
+        fft.linAverages(128);
 }
 
 
@@ -24,59 +25,19 @@ void draw()
 {  
 
   fft.forward( timothy.mix );
-  
           
   //timothy.rewind();
-  for (int i=0; i<timothy.length(); i+=1000) {  
-      println("\nPosition:" , timothy.position()); 
-      for(int j = 0; j < fft.specSize()-1; j+=32) {
-        timothy.cue(i);
-        println("\nFreq:\t", j);          
-        print(fft.getBand(j)*100, ",");                                                  
+  for(int j = 0; j < fft.avgSize(); j++) {
+    print(j, ": ");
+    for (int i=0; i<=timothy.length(); i+=1000) {
+        timothy.rewind();
+        timothy.skip(i);
+        //println("\nFreq:\t", j);          
+        print(fft.getBand(j), ", ");                                                  
+        print(int(map(fft.getBand(j), 0, 1, 0, 255)), ", ");                                                  
     }  
     println();
   }  
   
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*void draw()
-{  
-
-  fft.forward( timothy.mix );
-        
-  //timothy.rewind();
-  for(int j = 0; j < fft.specSize()-1; j+=32) {   
-      println("\nFreq:\t", j);
-      for (int i=0; i<timothy.length(); i+=1000) {
-        timothy.cue(i);
-        println("\nPosition:" , timothy.position());          
-        print(fft.getBand(i)*100, ",");                                                  
-    }  
-    println();
-  }  
   exit();
-  
-}*/
+}
