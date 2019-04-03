@@ -31,7 +31,7 @@ public enum states {STATE_BOOTSTRAP_OUTLINE,
                     STATE_BOOTSTRAP_B,
                     STATE_TRANSMIT_A2B, 
                     STATE_TRANSMIT_B2A};
-states state = states.STATE_TRANSMIT_A2B;
+states state = states.STATE_BOOTSTRAP_OUTLINE;
 
 int stanza_iter;
 int bootstrap_c_start = 0;
@@ -41,7 +41,7 @@ int transmit_a_start = 0;
 int bootstrap_b_start = 0;
 int transmit_ab_start = 0;
 
-final int BOOTSTRAP_OUTLINE_MS = 2 * 1000;
+final int BOOTSTRAP_OUTLINE_MS = 10 * 1000;
 final int BOOTSTRAP_C_MS = 5 * 1000;
 final int SEARCH_C_MS = 5 * 1000;
 final int BOOTSTRAP_A_MS = 10 * 1000;
@@ -74,7 +74,8 @@ void setup() {
   c2 = new Dish(x2, y2);
   c3 = new Dish(x3, y3);
   c3.set_rotatation(PI/6);
-  c1.set_color(color(26,137,175,100));
+  c1.set_color(color(26,137,175,200));
+  c2.set_color(color(26,137,175,55));
   
   println(" ---> State:", state);
   transmit_ab_start = millis();
@@ -139,7 +140,7 @@ void transitionState() {
     println(" ---> State:", state);
   } else if (state == states.STATE_BOOTSTRAP_A && 
              millis() > bootstrap_a_start + BOOTSTRAP_A_MS) {
-    transmit_a_start = millis();
+    transmit_ab_start = millis();
     state = states.STATE_TRANSMIT_A;
     println(" ---> State:", state);
   } else if (state == states.STATE_TRANSMIT_A && 
@@ -155,15 +156,15 @@ void transitionState() {
   } else if (millis() > transmit_ab_start + TRANSMIT_AB_MS + 1000) {
     transmit_ab_start = millis();
     if (state == states.STATE_TRANSMIT_A2B) {
-      c1.set_color(color(183,78,28,15));
-      c2.set_color(color(183,78,28,35));
-      c3.set_color(color(183,78,28,15));
+      c1.set_color(color(183,78,28,55));
+      c2.set_color(color(183,78,28,235));
+      c3.set_color(color(183,78,28,25));
       state = states.STATE_TRANSMIT_B2A;
       println(" ---> State:", state);
     } else if (state == states.STATE_TRANSMIT_B2A) {
-      c1.set_color(color(26,137,175,35));
-      c2.set_color(color(26,137,175,15));
-      c3.set_color(color(26,137,175,15));
+      c1.set_color(color(26,137,175,235));
+      c2.set_color(color(26,137,175,55));
+      c3.set_color(color(26,137,175,25));
       state = states.STATE_TRANSMIT_A2B;
       println(" ---> State:", state);
     }
@@ -222,10 +223,11 @@ class Dish {
     int r = (this.message_color >> 16) & 0xFF;
     int g = (this.message_color >> 8) & 0xFF;
     int b = this.message_color & 0xFF;
-    stroke(r/2, g/2, b/2, alpha_progress*a);
-    strokeWeight(2);
+    // stroke(r/2, g/2, b/2, alpha_progress*a);
+    // strokeWeight(1);
     
     for (int s=0; s < stanzas.length; s++) {
+      float inner_alpha = map(stanzas.length - s, 0, stanzas.length, 0.1, 1);
       int[] stanza = stanzas[s];
       int current_stanza = int(min(stanza.length-1, floor(progress*stanza.length)));
       float stanza_progress = map(progress, 0, 1, 0, stanza.length) - current_stanza;
@@ -239,8 +241,7 @@ class Dish {
       if (s==0) {
         // println(" ---> Amplitudes: ", current_stanza, stanza_progress, left_amplitude, right_amplitude, interp_amplitude);
       }
-
-      fill(r, g, b, alpha_progress*a);
+      fill(r, g, b, (inner_alpha)*alpha_progress*a);
       ellipse(0, 0, amplitude*.95, amplitude);
     }
 
@@ -264,10 +265,11 @@ class Dish {
     translate(this.x, this.y);
     rotate(this.rot);
     stroke(r/2, g/2, b/2, alpha_progress*a);
-    strokeWeight(1);
+    strokeWeight(2);
     
     for (int s=0; s < stanzas.length; s++) {
       int[] stanza = stanzas[s];
+      float inner_alpha = map(stanzas.length - s, 0, stanzas.length, 0.1, 1);
       int current_stanza = int(min(stanza.length-1, floor(progress*stanza.length)));
       float stanza_progress = map(progress, 0, 1, 0, stanza.length) - current_stanza;
       int left_amplitude = stanza[current_stanza];
@@ -285,7 +287,7 @@ class Dish {
       if (glitchy) {
         if (this.search_angle > 1.75*PI || this.search_angle < PI) continue;
       }
-      fill(r, g, b, alpha_progress*a);
+      fill(r, g, b, (1-inner_alpha)*alpha_progress*a);
       ellipse(0, 0, amplitude*.95, amplitude);
     }
     popMatrix();
