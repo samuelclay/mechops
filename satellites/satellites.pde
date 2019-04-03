@@ -12,7 +12,7 @@ int[][] stanzas = {
   {90, 90, 70, 10, 90, 90, 90, 70, 10}, // 5 khz
   {10, 20, 50, 90, 90, 10, 20, 50, 90},  // 1 khz
   {90, 90, 10, 10, 90, 90, 90, 10, 10}, // 500 hz
-  {10, 90, 10, 10, 90, 10, 90, 10, 10}, // 90 hz
+  {10, 90, 10, 10, 90, 10, 90, 10, 10}, // 100 hz
   {90, 90, 10, 10, 90, 90, 90, 10, 10}  // 50 hz
 };
 
@@ -41,11 +41,11 @@ int transmit_a_start = 0;
 int bootstrap_b_start = 0;
 int transmit_ab_start = 0;
 
-final int BOOTSTRAP_OUTLINE_MS = 10 * 1000;
+final int BOOTSTRAP_OUTLINE_MS = 3 * 1000;
 final int BOOTSTRAP_C_MS = 5 * 1000;
 final int SEARCH_C_MS = 5 * 1000;
-final int BOOTSTRAP_A_MS = 10 * 1000;
-final int TRANSMIT_A_MS = 7 * 1000;
+final int BOOTSTRAP_A_MS = 5 * 1000;
+final int TRANSMIT_A_MS = 2 * 1000;
 final int BOOTSTRAP_B_MS = 10 * 1000;
 final int TRANSMIT_AB_MS = 10 * 1000;
 final int TRANSMIT_BOOTSTRAP_MS = 1 * 1000;
@@ -76,6 +76,7 @@ void setup() {
   c3.set_rotatation(PI/6);
   c1.set_color(color(26,137,175,200));
   c2.set_color(color(26,137,175,55));
+  c3.set_color(color(26,137,175,45));
   
   println(" ---> State:", state);
   transmit_ab_start = millis();
@@ -158,13 +159,13 @@ void transitionState() {
     if (state == states.STATE_TRANSMIT_A2B) {
       c1.set_color(color(183,78,28,55));
       c2.set_color(color(183,78,28,235));
-      c3.set_color(color(183,78,28,25));
+      c3.set_color(color(183,78,28,45));
       state = states.STATE_TRANSMIT_B2A;
       println(" ---> State:", state);
     } else if (state == states.STATE_TRANSMIT_B2A) {
       c1.set_color(color(26,137,175,235));
       c2.set_color(color(26,137,175,55));
-      c3.set_color(color(26,137,175,25));
+      c3.set_color(color(26,137,175,45));
       state = states.STATE_TRANSMIT_A2B;
       println(" ---> State:", state);
     }
@@ -301,7 +302,7 @@ class Dish {
     translate(this.x, this.y);
     scale(0.95, 1);
     
-    fill(255, 230, 210, 76*bootstrap_progress);
+    fill(255, 230, 210, 126*bootstrap_progress);
     arc(0, 0, 100, 100, this.search_angle, this.search_angle+PI/6);
     
     popMatrix();
@@ -353,7 +354,7 @@ class Dish {
     translate(this.x, this.y);
     scale(0.95, 1);
     
-    fill(255, 230, 210, 76);
+    fill(255, 230, 210, 126);
     arc(0, 0, 100, 100, this.search_angle, this.search_angle+PI/6);
     
     popMatrix();
