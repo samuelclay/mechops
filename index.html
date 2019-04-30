@@ -1,0 +1,442 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Pattern editor</title>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+      canvas {
+        background-color: #fff;
+        border: 1px solid #333;
+        width: 640px;
+        height: 640px;
+      }
+      p {
+        margin: 0;
+      }
+    </style>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130576572-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-130576572-1');
+    </script>
+  </head>
+
+  <body>
+    <table>
+      <tr>
+        <td align="center" valign="top">
+          <canvas id="canvas" width="640" height="640"></canvas>
+          <br/>
+          <button id="save-image">Save hi-res image</button>
+        </td>
+        <td>
+          <!-- <p>Y pos: <span id="yPos_val"></span> / scale: <span id="yScale_val"></span></p>
+          <input type="range" min="-100" max="100" class="slider" id="yPos"/>
+          <input type="range" min="-200" max="200" class="slider" id="yScale"/> -->
+
+          <!-- <p>N: <span id="amodPre_val"></span></p>
+          <input type="range" min="10" max="80" class="slider" id="amodPre"/> -->
+
+          <!-- <p>Zoom pre: <span id="zoomPre_val"></span></p>
+          <input type="range" min="10" max="300" class="slider" id="zoomPre"/> -->
+
+          <p>Offs 0: <span id="offs0_val"></span></p>
+          <input type="range" min="-1000" max="1000" class="slider" id="offs0_x"/>
+          <!-- <input type="range" min="-1000" max="1000" class="slider" id="offs0_y"/> -->
+          <!-- <span>Symm</span><input type="checkbox" id="symm0"/> -->
+
+          <p>Rot 0: PI*<span id="rot0_val"></span></p>
+          <input type="range" min="-360" max="360" class="slider" id="rot0"/>
+
+          <!-- <p>N 0: <span id="amod0_val"></span></p>
+          <input type="range" min="10" max="80" class="slider" id="amod0"/>
+
+          <p>Zoom 0: <span id="zoom0_val"></span></p>
+          <input type="range" min="1" max="50" class="slider" id="zoom0"/> -->
+
+          <!-- <p>Offs 1: <span id="offs1_val"></span></p>
+          <input type="range" min="-1000" max="1000" class="slider" id="offs1_x"/>
+          <input type="range" min="-1000" max="1000" class="slider" id="offs1_y"/>
+          <span>Symm</span><input type="checkbox" id="symm1"/>
+
+          <p>Rot 1: PI*<span id="rot1_val"></span></p>
+          <input type="range" min="-360" max="360" class="slider" id="rot1"/>
+
+          <p>N 1: <span id="amod1_val"></span></p>
+          <input type="range" min="10" max="80" class="slider" id="amod1"/>
+
+          <p>Zoom 1: <span id="zoom1_val"></span></p>
+          <input type="range" min="1" max="50" class="slider" id="zoom1"/> -->
+
+          <!-- <p>Offs 2: <span id="offs2_val"></span></p>
+          <input type="range" min="-1000" max="1000" class="slider" id="offs2_x"/>
+          <input type="range" min="-1000" max="1000" class="slider" id="offs2_y"/>
+          <span>Symm</span><input type="checkbox" id="symm2"/>
+
+          <p>Rot 2: PI*<span id="rot2_val"></span></p>
+          <input type="range" min="-360" max="360" class="slider" id="rot2"/> -->
+
+          <!-- <p>N 2: <span id="amod2_val"></span></p>
+          <input type="range" min="10" max="80" class="slider" id="amod2"/>
+
+          <p>Zoom post (detail): <span id="zoomPost_val"></span></p>
+          <input type="range" min="10" max="300" class="slider" id="zoomPost"/> -->
+
+          <!-- <br/>
+          <span>Background mode: </span>
+          <select id="bgMode">
+            <option value="min(abs())">min(abs())</option>
+            <option value="abs()+abs()">abs()+abs()</option>
+            <option value="horiz">horiz</option>
+            <option value="vert">vert</option>
+            <option value="length">length</option>
+          </select> -->
+
+          <hr/>
+
+          <button id="save-preset">Save preset</button>
+          <label for="load-preset">Open preset</label><input id="load-preset" type="file" accept="application/json"/>
+        </td>
+      </tr>
+    </table>
+
+    <script>
+      const PI = Math.PI;
+
+      var imgw = 640;
+      var imgh = 640;
+      var canvas = document.getElementById('canvas');
+      var ctx = canvas.getContext('2d');
+      var imgData = ctx.createImageData(imgw, imgh);
+
+      var state = {
+        zoomPre: 24.5,
+        zoomPost: 12.3,
+        zoom0: 1,
+        zoom1: 0.9,
+        amodPre: 3,
+        amod0: 1,
+        amod1: 1,
+        amod2: 1,
+        offs0: [0.88, 2.272],
+        offs1: [4.504, 6.056],
+        offs2: [0.936, 0.432],
+        rot0: 1.0471975511965976,
+        rot1: 0.41015237421866746,
+        rot2: -1.0471975511965976,
+        symm0: true,
+        symm1: true,
+        symm2: false,
+        yPos: 0,
+        yScale: 1,
+        bgMode: "min(abs())"
+      }
+
+      function putPixel(imgData, w, x, y, val) {
+        var buf = imgData.data;
+        var idx = (y*w+x)*4;
+        buf[idx] = buf[idx+1] = buf[idx+2] = val;
+        buf[idx+3] = 255;
+      }
+
+      function mod(x, y) {
+        return x - y * Math.floor(x/y);
+      }
+
+      function fract(x) {
+        return x - Math.floor(x);
+      }
+
+      function amod(x, y, c) {
+        if (c <= 1.001)
+          return [x, y]
+        var m = 2.0*PI / c;
+        var a = mod(Math.atan2(x, y)-m*.5, m) - m*.5;
+        var len = Math.sqrt(x*x+y*y);
+        return [Math.cos(a)*len, Math.sin(a)*len];
+      }
+
+      function mo(p, d, symm) {
+        p[0] = Math.abs(p[0]) - d[0];
+        p[1] = Math.abs(p[1]) - d[1];
+        if (symm && p[1]>p[0]) {
+          var z = p[1]; p[1] = p[0]; p[0] = z;
+        }
+      }
+
+      function r2d(a) {
+        var c = Math.cos(a), s = Math.sin(a);
+        return [c, s, -s, c];
+      }
+
+      function mul(vec, mat) {
+        var x = vec[0]*mat[0] + vec[1]*mat[1];
+        var y = vec[0]*mat[2] + vec[1]*mat[3];
+
+        vec[0] = x;
+        vec[1] = y;
+      }
+
+      function smoothstep(lo, hi, x) {
+        x = (x-lo) / (hi-lo)
+        if (x <= 0)
+          return lo;
+        if (x >= 1)
+          return hi;
+        return x * x * (3. - 2. * x) * (hi-lo) + lo;
+      }
+
+      function calcPixel(rx, ry) {
+        var uv = [rx, ry];
+        uv[1] += state.yPos;
+
+        uv[0] *= state.zoomPre;
+        uv[1] *= state.zoomPre * state.yScale;
+
+        uv = amod(uv[0], uv[1], state.amodPre);
+
+        mo(uv, state.offs0, state.symm0);
+        mul(uv, r2d(state.rot0));
+        uv = amod(uv[0], uv[1], state.amod0);
+
+        uv[0] *= state.zoom0;
+        uv[1] *= state.zoom0;
+
+        mo(uv, state.offs1, state.symm1);
+        mul(uv, r2d(state.rot1));
+        uv = amod(uv[0], uv[1], state.amod1);
+
+        uv[0] *= state.zoom1;
+        uv[1] *= state.zoom1;
+
+        mo(uv, state.offs2, state.symm2);
+        mul(uv, r2d(state.rot2));
+        uv = amod(uv[0], uv[1], state.amod2);
+
+        uv[0] *= state.zoomPost;
+        uv[1] *= state.zoomPost;
+
+        var d = 0.5;
+        if (state.bgMode == "min(abs())") {
+          var l = Math.min(Math.abs(uv[0]), Math.abs(uv[1])) + PI/2;
+          d = (Math.sin(l) - .6)*2.;
+          d = smoothstep(0.0, 1.0, d);
+        } else if (state.bgMode == "abs()+abs()") {
+          var l = Math.abs(uv[0]) + Math.abs(uv[1]);
+          d = (Math.sin(l + PI/2) - .6)*2.;
+          d = smoothstep(0.0, 1.0, d);
+        } else if (state.bgMode == "horiz") {
+          var l = uv[1];
+          d = (Math.sin(l + PI/2) - .6)*2.;
+          d = smoothstep(0.0, 1.0, d);
+        } else if (state.bgMode == "vert") {
+          var l = uv[0];
+          d = (Math.sin(l + PI/2) - .6)*2.;
+          d = smoothstep(0.0, 1.0, d);
+        } else if (state.bgMode == "length") {
+          l = Math.sqrt(uv[0]*uv[0]+uv[1]*uv[1])
+          d = (Math.sin(l) - .6)*2.;
+          d = smoothstep(0.0, 1.0, d);
+        }
+
+        return Math.sqrt(d) * 0.7 + 0.3;
+      }
+
+
+      function generate() {
+        for (var y=0; y<imgh; ++y) {
+          for (var x=0; x<imgw; ++x) {
+            var rx = (x - 0.5*imgw) / imgh
+            var ry = (y - 0.5*imgh) / imgh
+            var v = smoothstep(0, 255, 255*calcPixel(rx, ry))
+            putPixel(imgData, imgw, x, y, v);
+          }
+        }
+        ctx.putImageData(imgData, 0, 0);
+      }
+
+      function generateAndSaveHiRes() {
+        var imgw = 2048
+        var imgh = 2048
+        var canvas = document.createElement('canvas');
+        canvas.width = imgw
+        canvas.height = imgh
+        var ctx = canvas.getContext('2d');
+        var imgData = ctx.createImageData(imgw, imgh);
+
+        for (var y=0; y<imgh; ++y) {
+          for (var x=0; x<imgw; ++x) {
+            var rx = (x - 0.5*imgw) / imgh
+            var ry = (y - 0.5*imgh) / imgh
+            var v = smoothstep(0, 255, 255*calcPixel(rx, ry))
+            putPixel(imgData, imgw, x, y, v);
+          }
+        }
+        ctx.putImageData(imgData, 0, 0);
+
+
+        var element = document.createElement('a');
+
+        element.setAttribute('href', canvas.toDataURL("image/png"));
+        element.setAttribute('download', "mandala.png");
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+        document.body.removeChild(canvas);
+      }
+
+      const OFFS_SLIDER_RANGE = 1000.0;
+      const OFFS_SCALE = 8.0;
+      const ROT_SLIDER_RANGE = 360.0;
+      const ROT_SCALE = PI;
+      const ZOOM_SLIDER_K = 10.0;
+
+      function setupControls() {
+        //document.getElementById("amodPre").value = state.amodPre * 10;
+        for (var i=0; i<1; ++i) {
+          //document.getElementById("amod"+i).value = state["amod"+i] * 10;
+          document.getElementById("offs"+i+"_x").value = state["offs"+i][0] / OFFS_SCALE * OFFS_SLIDER_RANGE;
+          //document.getElementById("offs"+i+"_y").value = state["offs"+i][1] / OFFS_SCALE * OFFS_SLIDER_RANGE;
+          document.getElementById("rot"+i).value = state["rot"+i] / ROT_SCALE * ROT_SLIDER_RANGE;
+          //document.getElementById("symm"+i).checked = state["symm"+i];
+          //if (i<2)
+            //document.getElementById("zoom"+i).value = state["zoom"+i] * ZOOM_SLIDER_K;
+        }
+        // document.getElementById("zoomPre").value = state.zoomPre * ZOOM_SLIDER_K;
+        // document.getElementById("zoomPost").value = state.zoomPost * ZOOM_SLIDER_K;
+        // document.getElementById("yPos").value = state.yPos * 100;
+        // document.getElementById("yScale").value = state.yScale * 100;
+
+        //document.getElementById("bgMode").value = state.bgMode;
+      }
+
+      function updateLabels() {
+        //document.getElementById("amodPre_val").innerText = state.amodPre>1 ? (""+state.amodPre).slice(0, 3) : "Off";
+        //document.getElementById("zoomPre_val").innerText = (""+state.zoomPre).slice(0, 4);
+        for (var i=0; i<1; ++i) {
+          //var amod = state["amod"+i]
+          //document.getElementById("amod"+i+"_val").innerText = amod > 1 ? (""+amod).slice(0, 3) : "Off";
+          document.getElementById("offs"+i+"_val").innerText = (""+state["offs"+i][0]).slice(0, 4) + " | " + (""+state["offs"+i][1]).slice(0, 4);
+          //if (i<2)
+            //document.getElementById("zoom"+i+"_val").innerText = (""+state["zoom"+i]).slice(0, 4);
+          document.getElementById("rot"+i+"_val").innerText = (""+(state["rot"+i] / PI)).slice(0,6);
+        }
+        // document.getElementById("zoomPost_val").innerText = (""+state.zoomPost).slice(0, 4);
+        // document.getElementById("yPos_val").innerText = Math.floor(state.yPos*100);
+        // document.getElementById("yScale_val").innerText = Math.floor(state.yScale*100);
+      }
+
+
+      setupControls();
+      updateLabels();
+
+      function makeSliderHandler(field, elem_id, scale) {
+        document.getElementById(elem_id).addEventListener("input", function(e) {
+          state[field] = e.target.value / scale;
+          generate();
+          updateLabels();
+        })
+      }
+
+      function makeOffsHandler(field, idx) {
+        document.getElementById(field+"_x").addEventListener("input", function(e) {
+          state[field][idx] = e.target.value / OFFS_SLIDER_RANGE  * OFFS_SCALE;
+          generate();
+          updateLabels();
+        })
+      }
+
+      function makeCheckboxHandler(field) {
+        document.getElementById(field).addEventListener("input", function(e) {
+          state[field] = e.target.checked;
+          generate();
+          updateLabels();
+        })
+      }
+
+      //makeSliderHandler("yPos", "yPos", 100);
+      //makeSliderHandler("yScale", "yScale", 100);
+
+      //makeSliderHandler("amodPre", "amodPre", 10);
+      //makeSliderHandler("zoomPre", "zoomPre", ZOOM_SLIDER_K);
+      //makeSliderHandler("zoom0", "zoom0", ZOOM_SLIDER_K);
+      //makeSliderHandler("zoom1", "zoom1", ZOOM_SLIDER_K);
+      //makeSliderHandler("zoomPost", "zoomPost", ZOOM_SLIDER_K);
+      for (var i=0; i<1; ++i) {
+        makeOffsHandler("offs"+i, 0);
+        makeOffsHandler("offs"+i, 1);
+        makeSliderHandler("rot"+i, "rot"+i, ROT_SLIDER_RANGE / ROT_SCALE);
+        //makeCheckboxHandler("symm"+i);
+        //makeSliderHandler("amod"+i, "amod"+i, 10);
+      }
+
+      document.getElementById("save-preset").onclick = savePreset
+      document.getElementById("load-preset").oninput = loadPreset
+      document.getElementById("save-image").onclick = generateAndSaveHiRes
+
+      // document.getElementById("bgMode").onchange = function(e) {
+      //   state.bgMode = e.target.value;
+      //   generate();
+      // }
+
+
+      generate()
+
+      function deep_copy(aObject) {
+        if (!aObject) {
+          return aObject;
+        }
+
+        var bObject, v, k;
+        bObject = Array.isArray(aObject) ? [] : {};
+        for (k in aObject) {
+          v = aObject[k];
+          bObject[k] = (typeof v === "object") ? deep_copy(v) : v;
+        }
+        return bObject;
+      }
+
+      function savePreset() {
+        var element = document.createElement('a');
+
+        var data = deep_copy(state);
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(data, null, 2)));
+        element.setAttribute('download', "preset.json");
+
+        element.style.display = 'none';
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
+      }
+
+      function loadPreset(evt) {
+        var file = evt.target.files[0];
+        var reader = new FileReader();
+        reader.onload = function() {
+          var text = reader.result;
+          state = JSON.parse(text);
+          updateLabels();
+          setupControls();
+          generate();
+        }
+        reader.readAsText(file);
+      }
+
+    </script>
+  </body>
+</html>
