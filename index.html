@@ -10,9 +10,10 @@
       }
       canvas {
         background-color: #fff;
-        border: 1px solid #333;
+        /*border: 1px solid #333;*/
         width: 640px;
         height: 640px;
+        margin: 20px 40px;
       }
       p {
         margin: 0;
@@ -251,6 +252,14 @@
         return Math.sqrt(d) * 0.7 + 0.3;
       }
 
+      var clearCircle = function(x, y, radius){
+          ctx.save();
+          ctx.globalCompositeOperation = 'destination-in';
+          ctx.beginPath();
+          ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+          ctx.fill();
+          ctx.restore();
+      };
 
       function generate() {
         for (var y=0; y<imgh; ++y) {
@@ -262,6 +271,8 @@
           }
         }
         ctx.putImageData(imgData, 0, 0);
+        ctx.fillStyle = '#fff';
+        clearCircle(320, 320, 320);
       }
 
       function generateAndSaveHiRes() {
@@ -282,7 +293,13 @@
           }
         }
         ctx.putImageData(imgData, 0, 0);
-
+        ctx.fillStyle = '#fff';
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.beginPath();
+        ctx.arc(1024, 1024, 1024, 0, 2 * Math.PI, false);
+        ctx.fill();
+        ctx.restore();
 
         var element = document.createElement('a');
 
