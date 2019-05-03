@@ -107,12 +107,10 @@
     var HzPerBin = 44100 / waveform.length;
     var imax = 5;
     for (var i = 5; i < spectrum.length; ++i){
-      if (spectrum[imax] < spectrum [i]) imax = i;
+      if (spectrum[imax] < spectrum[i]) imax = i;
     }
     var hzMax = imax * HzPerBin;
     //print ('hzMax : ' + hzMax);
-    
-
     
     if (millis() - timestamp >=500) {
       timestamp = millis();
@@ -127,23 +125,25 @@
     if (millis() >= 8000){
       console.log('volumes: ' + volumes);
       console.log('frequencies: ' + frequencies);
+      console.log('avg_hz: ' + average(frequencies));
+      console.log('avg_vol: ' + average(volumes));
       
-      hz_avg = map(average(frequencies), 0.0, 12000.0, -8.0, 8.0);
-      vol_avg = map(average(volumes), 0.0, 0.5, -(Math.PI), Math.PI);
-      console.log('avg_hz: ' + hz_avg);
-      console.log('avg_vol: ' + vol_avg);
+      hz_map = map(average(frequencies), 0.0, 12000.0, -8.0, 8.0);
+      vol_map = map(average(volumes), 0.0, 0.5, -(Math.PI), Math.PI);
+      console.log('map_hz: ' + hz_map);
+      console.log('map_vol: ' + vol_map);
 
       //state.rot0 = document.getElementById("rot0").value / (ROT_SLIDER_RANGE/ROT_SCALE);
       //state.offs0_x = document.getElementById("offs0_x").value / OFFS_SLIDER_RANGE * OFFS_SCALE;
       // if already mapped, then dont need to do the above, simply set the state
-      state.offs0[0] = hz_avg;
-      state.rot0 = vol_avg;
+      state.offs0[0] = hz_map;
+      state.rot0 = vol_map;
 
-      var rotVal = /*document.getElementById("rot0").value =*/ state.rot0 * (ROT_SLIDER_RANGE/ROT_SCALE);
-      console.log("input rot0 value: "+rotVal);
-
-      var offsVal = /*document.getElementById("offs0_x").value =*/ (state.offs0[0] / OFFS_SCALE) * OFFS_SLIDER_RANGE;
-      console.log("input offs0_x value: "+offsVal);
+      // update the sliders
+      /*var rotVal=*/ document.getElementById("rot0").value = state.rot0 * (ROT_SLIDER_RANGE/ROT_SCALE);
+      //console.log("input rot0 value: "+rotVal);
+      /*var offsVal=*/ document.getElementById("offs0_x").value = (state.offs0[0] / OFFS_SCALE) * OFFS_SLIDER_RANGE;
+      //console.log("input offs0_x value: "+offsVal);
 
       //console.log('value_hz: ' + document.getElementById("offs0_x").value );
       //console.log('value_vol ' + document.getElementById("rot0").value );
