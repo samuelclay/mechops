@@ -111,7 +111,39 @@ function generate(){
     container.innerHTML=mandala;
     var a=document.getElementById("download");
     a.href = window.URL.createObjectURL(new Blob([preheader+mandala], {type: 'image/svg'}));
-    a.download = "mandala-"+freqText.innerText.padStart(5, '0')+"-"+amplitudeText.innerText+".svg";
+    a.download = "mandala-"+freqText.innerText.padStart(5, '0')+"-"+amplitudeText.innerText.padStart(3, '0')+".svg";
+    a.onclick = advance;
+}
+
+var position = 0;
+var lastFreqAmplitude = [0, 0];
+var frequencies = [
+  [100, 10],
+  [200, 20],
+  [200, 20],
+  [500, 50],
+  [1000, 10],
+  [1000, 10],
+  [5000, 20],
+  [10000, 80],
+  [10000, 80],
+  [20000, 5]
+];
+
+function advance() {
+  while (1) {
+    position += 1;
+    if (position >= frequencies.length) break;
+    if (frequencies[position][0] == lastFreqAmplitude[0] && frequencies[position][1] == lastFreqAmplitude[1])
+      continue;
+    
+    freqSlider.value = frequencies[position][0];
+    freqText.innerText = frequencies[position][0];
+    amplitudeSlider.value = frequencies[position][1];
+    amplitudeText.innerText = frequencies[position][1];
+    generate();
+    break;
+  }
 }
 
 function toggleColor()
