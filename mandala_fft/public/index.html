@@ -68,7 +68,7 @@
 
   function preload() {
     soundFormats('mp3', 'ogg');
-    mySound = loadSound('../song.mp3');
+    mySound = loadSound('../10000.mp3');
   }
 
   function setup() {
@@ -116,9 +116,9 @@
     }
     //print('volume : ' + volume);
     
-    var HzPerBin = 44100 / waveform.length;
-    var imax = 5;
-    for (var i = 5; i < spectrum.length; ++i){
+    var HzPerBin = 22072.8888889 / waveform.length;
+    var imax = 0;
+    for (var i = 0; i < spectrum.length; ++i){
       if (spectrum[imax] < spectrum[i]) imax = i;
     }
     var hzMax = imax * HzPerBin;
@@ -129,14 +129,16 @@
 
       print('volume : ' + volume);
       print ('hzMax : ' + hzMax);
+      print ('hz per bin : ' + HzPerBin);
+      print ('imax : ' + imax);
 
       volumes.push(volume);
       frequencies.push(hzMax);
 
       hz_map = map(hzMax, 215.0, 800.0, -8.0, 8.0);
       vol_map = map(volume, 0.00, 0.10, -(Math.PI), Math.PI);
-      console.log('map_hz: ' + hz_map);
-      console.log('map_vol: ' + vol_map);
+      //console.log('map_hz: ' + hz_map);
+      //console.log('map_vol: ' + vol_map);
 
       state.offs0[0] = hz_map;
       state.rot0 = vol_map;
@@ -151,7 +153,7 @@
       updateLabels();
     }        
 
-    if (millis() >= 60000){
+    if (millis() >= 10000){
       saveStrings(frequencies, 'frequencies', 'txt');
       remove();
     }
