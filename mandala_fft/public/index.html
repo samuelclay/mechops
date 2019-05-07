@@ -57,7 +57,7 @@
   Begin Mic Code ****************
   *******************************
   *******************************/
-  let mic, fft;
+  let mic, fft, writer;
   var timestamp = 0;
   let volumes = []; 
   let frequencies = [];
@@ -83,6 +83,9 @@
     fft.setInput(mySound);
 
     userStartAudio().then(function(){});
+
+    // Create a new file in the sketch directory
+    writer = createWriter("freqs_vols.txt"); 
   }
 
   function draw() {
@@ -132,7 +135,10 @@
       print ('imax : ' + imax);
 
       volumes.push(volume);
-      frequencies.push(hzMax);
+      frequencies.push(round(hzMax));
+
+      vol_write = map(volume, 0.00, 0.10, 0, 100);
+      writer.print(round(hzMax) + ", " + round(vol_write));
 
       hz_map = map(hzMax, 215.0, 800.0, -8.0, 8.0);
       vol_map = map(volume, 0.00, 0.10, -(Math.PI), Math.PI);
@@ -153,8 +159,10 @@
     }        
 
     if (millis() >= 10000){
-      saveStrings(frequencies, 'frequencies', 'txt');
-      remove();
+      //saveStrings(frequencies, 'frequencies', 'txt');
+      writer.close();
+      writer.clear();
+      exit(); // Stops the program
     }
     // if (millis() >= 8000){
     //   console.log('volumes: ' + volumes);
