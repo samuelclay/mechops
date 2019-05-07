@@ -1,0 +1,15 @@
+{
+  "name": "mandala_fft",
+  "version": "1.0.0",
+  "description": "",
+  "main": "p5.js",
+  "dependencies": {},
+  "devDependencies": {
+    "http-server": "^0.11.1"
+  },
+  "scripts": {
+        "start": "http-server ."
+  },
+  "author": "",
+  "license": "ISC"
+}

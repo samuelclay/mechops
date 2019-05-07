@@ -23,10 +23,14 @@
     <script src="../p5.js"></script>
     <script src="../addons/p5.dom.min.js"></script>
     <script src="../addons/p5.sound.min.js"></script>
-    <script src="sketch.js"></script>
+    <script type="module" src="sketch.js"></script>
   </head>
 
   <body>
+    <!-- <audio controls>
+      <source src="../song.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+    </audio> -->
     <table>
       <tr>
         <td align="center" valign="top">
@@ -62,14 +66,22 @@
   let vol_avg = 0.0;
   let hz_avg = 0.0;
 
+  function preload() {
+    soundFormats('mp3', 'ogg');
+    mySound = loadSound('../song.mp3');
+  }
+
   function setup() {
     createCanvas(710, 400);
     noFill();
 
-    mic = new p5.AudioIn();
-    mic.start();
+    mySound.setVolume(0.1);
+    mySound.play();
+
+    //mic = new p5.AudioIn();
+    //mic.start();
     fft = new p5.FFT();
-    fft.setInput(mic);
+    fft.setInput(mySound);
 
     userStartAudio().then(function(){});
   }
@@ -112,7 +124,7 @@
     var hzMax = imax * HzPerBin;
     //print ('hzMax : ' + hzMax);
     
-    if (millis() - timestamp >=500) {
+    if (millis() - timestamp >=100) {
       timestamp = millis();
 
       print('volume : ' + volume);
@@ -120,22 +132,12 @@
 
       volumes.push(volume);
       frequencies.push(hzMax);
-    }        
 
-    if (millis() >= 8000){
-      console.log('volumes: ' + volumes);
-      console.log('frequencies: ' + frequencies);
-      console.log('avg_hz: ' + average(frequencies));
-      console.log('avg_vol: ' + average(volumes));
-      
-      hz_map = map(average(frequencies), 0.0, 12000.0, -8.0, 8.0);
-      vol_map = map(average(volumes), 0.0, 0.5, -(Math.PI), Math.PI);
+      hz_map = map(hzMax, 215.0, 800.0, -8.0, 8.0);
+      vol_map = map(volume, 0.00, 0.10, -(Math.PI), Math.PI);
       console.log('map_hz: ' + hz_map);
       console.log('map_vol: ' + vol_map);
 
-      //state.rot0 = document.getElementById("rot0").value / (ROT_SLIDER_RANGE/ROT_SCALE);
-      //state.offs0_x = document.getElementById("offs0_x").value / OFFS_SLIDER_RANGE * OFFS_SCALE;
-      // if already mapped, then dont need to do the above, simply set the state
       state.offs0[0] = hz_map;
       state.rot0 = vol_map;
 
@@ -145,15 +147,46 @@
       /*var offsVal=*/ document.getElementById("offs0_x").value = (state.offs0[0] / OFFS_SCALE) * OFFS_SLIDER_RANGE;
       //console.log("input offs0_x value: "+offsVal);
 
-      //console.log('value_hz: ' + document.getElementById("offs0_x").value );
-      //console.log('value_vol ' + document.getElementById("rot0").value );
-      console.log('state_hz: ' + state.offs0[0]);
-      console.log('state_vol: ' + state.rot0);
-
       generate();
       updateLabels();
+    }        
+
+    if (millis() >= 60000){
+      saveStrings(frequencies, 'frequencies', 'txt');
       remove();
     }
+    // if (millis() >= 8000){
+    //   console.log('volumes: ' + volumes);
+    //   console.log('frequencies: ' + frequencies);
+    //   console.log('avg_hz: ' + average(frequencies));
+    //   console.log('avg_vol: ' + average(volumes));
+      
+    //   hz_map = map(average(frequencies), 0.0, 12000.0, -8.0, 8.0);
+    //   vol_map = map(average(volumes), 0.0, 0.1, -(Math.PI), Math.PI);
+    //   console.log('map_hz: ' + hz_map);
+    //   console.log('map_vol: ' + vol_map);
+
+    //   //state.rot0 = document.getElementById("rot0").value / (ROT_SLIDER_RANGE/ROT_SCALE);
+    //   //state.offs0_x = document.getElementById("offs0_x").value / OFFS_SLIDER_RANGE * OFFS_SCALE;
+    //   // if already mapped, then dont need to do the above, simply set the state
+    //   state.offs0[0] = hz_map;
+    //   state.rot0 = vol_map;
+
+    //   // update the sliders
+    //   /*var rotVal=*/ document.getElementById("rot0").value = state.rot0 * (ROT_SLIDER_RANGE/ROT_SCALE);
+    //   //console.log("input rot0 value: "+rotVal);
+    //   /*var offsVal=*/ document.getElementById("offs0_x").value = (state.offs0[0] / OFFS_SCALE) * OFFS_SLIDER_RANGE;
+    //   //console.log("input offs0_x value: "+offsVal);
+
+    //   //console.log('value_hz: ' + document.getElementById("offs0_x").value );
+    //   //console.log('value_vol ' + document.getElementById("rot0").value );
+    //   console.log('state_hz: ' + state.offs0[0]);
+    //   console.log('state_vol: ' + state.rot0);
+
+    //   generate();
+    //   updateLabels();
+    //   remove();
+    // }
 
   }/* end mic code */
 
@@ -178,9 +211,9 @@
   var state = {
     zoomPre: 24.5,
     zoomPost: 12.3,
-    zoom0: 1,
+    zoom0: 0.3,
     zoom1: 0.9,
-    amodPre: 3,
+    amodPre: 6,
     amod0: 1,
     amod1: 1,
     amod2: 1,
