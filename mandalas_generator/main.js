@@ -111,7 +111,7 @@ function generate(){
     container.innerHTML=mandala;
     var a=document.getElementById("download");
     a.href = window.URL.createObjectURL(new Blob([preheader+mandala], {type: 'image/svg'}));
-    a.download = "mandala-"+freqText.innerText+"-"+amplitudeText.innerText+".svg";
+    a.download = "mandala-"+freqText.innerText.padStart(5, '0')+"-"+amplitudeText.innerText+".svg";
 }
 
 function toggleColor()
