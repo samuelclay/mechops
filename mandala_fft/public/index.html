@@ -141,11 +141,12 @@
 
       vol_write = map(volume, 0.00, 0.10, 0, 100);
       writer.print(round(hzMax) + ", " + round(vol_write));
-      print('frameRate: '+fps);
+      // print('frameRate: '+fps);
 
       hz_map = map(hzMax, 215.0, 800.0, -8.0, 8.0);
       vol_map = map(volume, 0.00, 0.10, -(Math.PI), Math.PI);
-      //console.log('map_hz: ' + hz_map);
+      console.log('map_hz: ' + Math.round(hzMax) + " vol: " + Math.ceil(volume * 100) / 100);
+      // console.log('map_hz: ' + hz_map + " vol: " + vol_map);
       //console.log('map_vol: ' + vol_map);
 
       //state.offs0[0] = hz_map;
@@ -162,7 +163,7 @@
     }        
 
     if (millis() >= 60 * 1000){
-      //saveStrings(frequencies, 'frequencies', 'txt');
+      // saveStrings(frequencies, 'frequencies', 'txt');
       writer.close();
       writer.clear();
       exit(); // Stops the program
