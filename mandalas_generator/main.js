@@ -83,6 +83,27 @@ const scale = (num, in_min, in_max, out_min, out_max) => {
   return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+function randomize() {
+  h1Slider.value = scale(Math.random(), 0, 1, 0, 100);
+  h1Text.innerText = h1Slider.value;
+  h2Slider.value = scale(Math.random(), 0, 1, 0, 100);
+  h2Text.innerText = h2Slider.value;
+  h3Slider.value = scale(Math.random(), 0, 1, 0, 100);
+  h3Text.innerText = h3Slider.value;
+  h4Slider.value = scale(Math.random(), 0, 1, 0, 100);
+  h4Text.innerText = h4Slider.value;
+  j1Slider.value = scale(Math.random(), 0, 1, 0, 100);
+  j1Text.innerText = j1Slider.value;
+  j2Slider.value = scale(Math.random(), 0, 1, 0, 100);
+  j2Text.innerText = j2Slider.value;
+  j3Slider.value = scale(Math.random(), 0, 1, 0, 100);
+  j3Text.innerText = j3Slider.value;
+  j4Slider.value = scale(Math.random(), 0, 1, 0, 100);
+  j4Text.innerText = j4Slider.value;
+  
+  generate();
+}
+
 function generate(){
     mandala=header;
     const freq = scale(parseInt(freqText.innerText, 10), 20, 20000, 0.15, 1);
