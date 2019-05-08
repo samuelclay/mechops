@@ -106,20 +106,20 @@ function randomize() {
 
 function generate(){
     mandala=header;
-    const freq = scale(parseInt(freqText.innerText, 10), 20, 20000, 0.15, 1);
+    const freq = scale(parseInt(freqText.innerText, 10), 20, 10000, 0.75, 1);
     const amplitude = scale(parseInt(amplitudeText.innerText, 10), 0, 100, 0, 1);
     // var h1 = scale(Math.random(), 0, 1, 0.1, 0.11);
     // var h2 = scale(Math.random(), 0, 1, 0.49, 0.5);
     // var h3 = scale(Math.random(), 0, 1, 0.69, 0.7);
     // var h4 = scale(Math.random(), 0, 1, 0.89, 0.9);
     var h1 = scale(amplitude, 0, 1, 0.5, 1)*scale(parseInt(h1Text.innerText, 10), 0, 100, 0, 1);
-    var h2 = scale(amplitude, 0, 1, 0.1, 1)**scale(parseInt(h2Text.innerText, 10), 0, 100, 0, 1);
-    var h3 = scale(amplitude, 0, 1, 0.1, 1)**scale(parseInt(h3Text.innerText, 10), 0, 100, 0, 1);
+    var h2 = scale(amplitude, 0, 1, 0.5, 1)*scale(parseInt(h2Text.innerText, 10), 0, 100, 0, 1);
+    var h3 = scale(amplitude, 0, 1, 0.5, 1)*scale(parseInt(h3Text.innerText, 10), 0, 100, 0, 1);
     var h4 = scale(amplitude, 0, 1, 0.5, 1)*scale(parseInt(h4Text.innerText, 10), 0, 100, 0, 1);
-    var j1 = scale(amplitude, 0, 1, 0.5, 1)*scale(parseInt(j1Text.innerText, 10), 0, 100, 0, 1);
-    var j2 = scale(amplitude, 0, 1, 0.1, 1)**scale(parseInt(j2Text.innerText, 10), 0, 100, 0, 1);
-    var j3 = scale(amplitude, 0, 1, 0.1, 1)**scale(parseInt(j3Text.innerText, 10), 0, 100, 0, 1);
-    var j4 = scale(amplitude, 0, 1, 0.5, 1)*scale(parseInt(j4Text.innerText, 10), 0, 100, 0, 1);
+    var j1 = scale(freq, 0, 1, 0.25, 0.5)*scale(parseInt(j1Text.innerText, 10), 0, 100, 0, 1);
+    var j2 = scale(freq, 0, 1, 0.1, 1)*scale(parseInt(j2Text.innerText, 10), 0, 100, 0, 1);
+    var j3 = scale(freq, 0, 1, 0.1, 1)*scale(parseInt(j3Text.innerText, 10), 0, 100, 0, 1);
+    var j4 = scale(freq, 0, 1, 0.25, 0.5)*scale(parseInt(j4Text.innerText, 10), 0, 100, 0, 1);
     
     console.log(['Freq', freq, h1, h2, h3, h4]);
     for(i=0; i<REP; ++i)
@@ -136,7 +136,7 @@ function generate(){
     for(i=0; i<REP; ++i)
     {
 	var curang=0,
-	    ang=Math.PI/(1<<(Math.floor(freq*3)+2));
+	    ang=Math.PI/(1<<(3));
 	if(colored)
 	{
 	    color=Math.floor(Math.random()*16777216).toString(16);
@@ -172,7 +172,7 @@ function generate(){
     for(i=0; i<REP; ++i)
     {
 	curang=0;
-	ang=Math.PI/(1<<(Math.floor(freq*3)+3));
+	ang=Math.PI/(1<<(Math.floor(.5*3)+3));
 	if(colored)
 	{
 	    color=Math.floor(Math.random()*16777216).toString(16);
