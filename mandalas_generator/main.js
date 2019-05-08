@@ -112,14 +112,14 @@ function generate(){
     // var h2 = scale(Math.random(), 0, 1, 0.49, 0.5);
     // var h3 = scale(Math.random(), 0, 1, 0.69, 0.7);
     // var h4 = scale(Math.random(), 0, 1, 0.89, 0.9);
-    var h1 = scale(freq, 0, 1, 0.1, .3)*scale(parseInt(h1Text.innerText, 10), 0, 100, 0, 1);
-    var h2 = scale(amplitude, 0, 1, 0.5, 1)*scale(parseInt(h2Text.innerText, 10), 0, 100, 0, 1);
-    var h3 = scale(amplitude, 0, 1, 0.5, 1)*scale(parseInt(h3Text.innerText, 10), 0, 100, 0, 1);
-    var h4 = scale(amplitude, 0, 1, 0.5, 1)*scale(parseInt(h4Text.innerText, 10), 0, 100, 0, 1);
-    var j1 = scale(freq, 0, 1, 0.25, 2)*scale(parseInt(j1Text.innerText, 10), 0, 100, 0, 1);
-    var j2 = scale(1, 0, 1, 0.1, 1)*scale(parseInt(j2Text.innerText, 10), 0, 100, 0, 1);
-    var j3 = scale(1, 0, 1, 0.1, 1)*scale(parseInt(j3Text.innerText, 10), 0, 100, 0, 1);
-    var j4 = scale(amplitude, 0, 1, 0.25, 1)*scale(parseInt(j4Text.innerText, 10), 0, 100, 0, 1);
+    var h1 = scale(freq, 0, 1, 1, 1)*scale(parseInt(h1Text.innerText, 10), 0, 100, 0, 1);
+    var h2 = scale(amplitude, 0, 1, 1, 1)*scale(parseInt(h2Text.innerText, 10), 0, 100, 0, 1);
+    var h3 = scale(amplitude, 0, 1, 1, 1)*scale(parseInt(h3Text.innerText, 10), 0, 100, 0, 1);
+    var h4 = scale(amplitude, 0, 1, 1, 1)*scale(parseInt(h4Text.innerText, 10), 0, 100, 0, 1);
+    var j1 = scale(amplitude, 0, 1, 1, 1)*scale(parseInt(j1Text.innerText, 10), 0, 100, 0, 1);
+    var j2 = scale(1, 0, 1, 1, 1)*scale(parseInt(j2Text.innerText, 10), 0, 100, 0, 1);
+    var j3 = scale(1, 0, 1, 1, 1)*scale(parseInt(j3Text.innerText, 10), 0, 100, 0, 1);
+    var j4 = scale(amplitude, 0, 1, 1, 1)*scale(parseInt(j4Text.innerText, 10), 0, 100, 0, 1);
     
     console.log(['Freq', freq, h1, h2, h3, h4]);
     for(i=0; i<REP; ++i)
