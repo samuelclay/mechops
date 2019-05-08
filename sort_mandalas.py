@@ -3,9 +3,9 @@ import shutil
 import glob
 
 #rosetta = "/Users/jacksonhowell/Desktop/mech_ops/mechops/mandalas_pix2pix/frequencies.txt"
-src = "/Users/jacksonhowell/Desktop/mech_ops/mechops/mandalas_pix2pix/mandalas_06_rosettes_v1_test/images/"
-dstin = "/Users/jacksonhowell/Desktop/sorted_mandalas_input/"
-dstout = "/Users/jacksonhowell/Desktop/sorted_mandalas_output/"
+src = "mandalas_10_test/images/"
+dstin = "sorted_mandalas_input/"
+dstout = "sorted_mandalas_output/"
 
 rosetta = [
 
